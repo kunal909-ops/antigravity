@@ -322,18 +322,44 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
           const width = w.w;
           const height = w.h;
 
-          pCtx.fillStyle = 'rgba(255, 120, 0, 0.12)';
+          // Premium Spotlight Effect
+          const spotlightRadius = Math.max(width, height) * 3;
+          const gradient = pCtx.createRadialGradient(
+            x + width / 2, y + height / 2, 0,
+            x + width / 2, y + height / 2, spotlightRadius
+          );
+          gradient.addColorStop(0, 'rgba(255, 220, 100, 0.08)');
+          gradient.addColorStop(0.3, 'rgba(255, 180, 50, 0.04)');
+          gradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+          pCtx.fillStyle = gradient;
+          pCtx.fillRect(x - spotlightRadius, y - spotlightRadius, spotlightRadius * 2, spotlightRadius * 2);
+
+          // Main word highlight with gradient
+          const wordGradient = pCtx.createLinearGradient(x, y, x, y + height);
+          wordGradient.addColorStop(0, 'rgba(255, 200, 80, 0.25)');
+          wordGradient.addColorStop(0.5, 'rgba(255, 180, 60, 0.3)');
+          wordGradient.addColorStop(1, 'rgba(255, 160, 40, 0.25)');
+          pCtx.fillStyle = wordGradient;
           pCtx.beginPath();
-          drawRoundedRect(pCtx, x - 4, y, width + 8, height, 8);
+          drawRoundedRect(pCtx, x - 6, y - 2, width + 12, height + 4, 6);
           pCtx.fill();
 
-          pCtx.shadowBlur = 10;
-          pCtx.shadowColor = 'rgba(255, 107, 0, 0.4)';
-          pCtx.fillStyle = '#ff6b00';
+          // Elegant underline with glow
+          pCtx.shadowBlur = 8;
+          pCtx.shadowColor = 'rgba(255, 180, 0, 0.6)';
+          const underlineGradient = pCtx.createLinearGradient(x, y + height, x + width, y + height);
+          underlineGradient.addColorStop(0, 'rgba(255, 200, 80, 0.4)');
+          underlineGradient.addColorStop(0.5, 'rgba(255, 160, 40, 0.8)');
+          underlineGradient.addColorStop(1, 'rgba(255, 200, 80, 0.4)');
+          pCtx.fillStyle = underlineGradient;
           pCtx.beginPath();
-          drawRoundedRect(pCtx, x, y + height + 2, width, 4, 2);
+          drawRoundedRect(pCtx, x - 2, y + height + 3, width + 4, 3, 1.5);
           pCtx.fill();
           pCtx.shadowBlur = 0;
+
+          // Subtle left accent bar for reading direction
+          pCtx.fillStyle = 'rgba(255, 180, 60, 0.5)';
+          pCtx.fillRect(x - 8, y, 2, height);
 
           // --- AUTO SCROLLING ---
           if (scrollRef.current && canvasRef.current) {
@@ -403,10 +429,15 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
   }, [isMobile]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    // Allow scrolling on the viewport, only handle gestures on the canvas
+    if (!target.closest('#zen-page')) return;
+
     if (e.touches.length === 1) {
       touchXRef.current = e.touches[0].clientX;
       touchYRef.current = e.touches[0].clientY;
     } else if (e.touches.length === 2) {
+      e.preventDefault();
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -418,6 +449,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 2 && pinchStartDistRef.current !== null) {
+      e.preventDefault();
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -428,10 +460,13 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (e.changedTouches.length === 1 && touchXRef.current !== null && e.touches.length === 0) {
+    if (e.changedTouches.length === 1 && touchXRef.current !== null && touchYRef.current !== null && e.touches.length === 0) {
       const diffX = e.changedTouches[0].clientX - touchXRef.current;
-      const diffY = Math.abs(e.changedTouches[0].clientY - (touchYRef.current || 0));
-      if (Math.abs(diffX) > 70 && diffY < 100) {
+      const diffY = e.changedTouches[0].clientY - touchYRef.current;
+
+      // Only trigger page turn if horizontal swipe is dominant
+      if (Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 2) {
+        e.preventDefault();
         if (diffX > 0) prev();
         else next();
       }
@@ -463,7 +498,6 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         #reading-stage {
           perspective: 2500px;
-          touch-action: pan-x pan-y pinch-zoom;
         }
         #stage-viewport {
           width: 100%;
@@ -474,6 +508,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
           overflow-y: auto;
           overflow-x: hidden;
           -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
         }
         #stage-viewport::before, #stage-viewport::after {
           content: '';
@@ -491,6 +526,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
           will-change: transform;
           margin: ${isMobile ? '20px 0 120px 0' : '40px 0'};
           flex-shrink: 0;
+          touch-action: none;
         }
         #zen-page.straight {
           transform: ${isMobile ? 'translateZ(20px)' : 'rotateX(0deg) rotateY(0deg) translateZ(50px)'};
@@ -577,7 +613,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
       <main
         ref={scrollRef}
         id="stage-viewport"
-        className={cn("hide-scrollbar", !isMobile && "cursor-none")}
+        className="hide-scrollbar"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
