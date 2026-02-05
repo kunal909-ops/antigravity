@@ -248,7 +248,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [numPages]);
 
-  // Sync Refs for High-Frequency Loop
+  // --- PACER REFS & LOOP (Correct Definition Order) ---
   const pageRef = useRef({ current: 1, total: 0 });
   const nextRef = useRef(next);
 
@@ -256,6 +256,21 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
     pageRef.current = { current: currentPage, total: numPages };
     nextRef.current = next;
   }, [currentPage, numPages, next]);
+
+  // Helper for cross-platform rounded rect
+  const drawRoundedRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    if (ctx.roundRect) {
+      ctx.roundRect(x, y, width, height, radius);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + width, y, x + width, y + height, radius);
+      ctx.arcTo(x + width, y + height, x, y + height, radius);
+      ctx.arcTo(x, y + height, x, y, radius);
+      ctx.arcTo(x, y, x + width, y, radius);
+      ctx.closePath();
+    }
+  };
 
   const loop = useCallback((now: number) => {
     if (!lastTimeRef.current) lastTimeRef.current = now;
@@ -274,20 +289,20 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
         const nextIdx = indexRef.current + skip;
 
-        // AUTO-ADVANCE LOGIC: Reach end of page -> flip to next automatically
         if (nextIdx >= wordsRef.current.length - 1) {
           if (pageRef.current.current < pageRef.current.total) {
-            nextRef.current(); // Trigger next page
-            indexRef.current = 0; // Reset index for new page
-            accumulatedRef.current = -500; // 500ms "breath" pause between pages
+            nextRef.current();
+            indexRef.current = 0;
+            accumulatedRef.current = -500;
           } else {
             indexRef.current = wordsRef.current.length - 1;
-            setPacerPaused(true); // End of book
+            setPacerPaused(true);
           }
         } else {
           indexRef.current = nextIdx;
         }
 
+        // Use local variable for state updates to avoid stale closures in RAF
         if (now % 100 < 20) setCurrentWordIndex(indexRef.current);
       }
     }
@@ -306,14 +321,14 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
           pCtx.fillStyle = 'rgba(255, 120, 0, 0.12)';
           pCtx.beginPath();
-          pCtx.roundRect(x - 4, y, width + 8, height, 8);
+          drawRoundedRect(pCtx, x - 4, y, width + 8, height, 8);
           pCtx.fill();
 
           pCtx.shadowBlur = 10;
           pCtx.shadowColor = 'rgba(255, 107, 0, 0.4)';
           pCtx.fillStyle = '#ff6b00';
           pCtx.beginPath();
-          pCtx.roundRect(x, y + height + 2, width, 4, 2);
+          drawRoundedRect(pCtx, x, y + height + 2, width, 4, 2);
           pCtx.fill();
           pCtx.shadowBlur = 0;
         }
