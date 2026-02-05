@@ -71,6 +71,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
   const lastTimeRef = useRef<number>(0);
   const renderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
   const uiTimeoutRef = useRef<number>(0);
+  const pageTurningRef = useRef<boolean>(false);
 
   // Perspective state
   const [isHovered, setIsHovered] = useState(false);
@@ -282,7 +283,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
     const { enabled, paused, speed } = pacingRef.current;
 
-    if (enabled && !paused && wordsRef.current.length > 0) {
+    if (enabled && !paused && wordsRef.current.length > 0 && !pageTurningRef.current) {
       accumulatedRef.current += dt;
       const threshold = 60000 / speed;
 
@@ -291,22 +292,38 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
         accumulatedRef.current %= threshold;
 
         const nextIdx = indexRef.current + skip;
+        const lastWordIndex = wordsRef.current.length - 1;
 
-        if (wordsRef.current.length > 0 && nextIdx >= wordsRef.current.length - 1) {
+        // Check if we've reached or passed the last word
+        if (nextIdx >= lastWordIndex) {
+          // Move to last word first
+          indexRef.current = lastWordIndex;
+          setCurrentWordIndex(lastWordIndex);
+
+          // Check if we should turn the page
           if (pageRef.current.current < pageRef.current.total) {
-            nextRef.current();
-            indexRef.current = 0;
-            accumulatedRef.current = -800; // Slightly longer breath for page load
+            // Mark that we're turning the page
+            pageTurningRef.current = true;
+
+            // Give user a moment to see the last word before turning
+            setTimeout(() => {
+              nextRef.current();
+              indexRef.current = 0;
+              accumulatedRef.current = 0;
+              // Reset flag after page has turned and rendered
+              setTimeout(() => {
+                pageTurningRef.current = false;
+              }, 300); // Wait for render to complete
+            }, Math.max(threshold * 0.5, 200)); // At least 200ms to show last word
           } else {
-            indexRef.current = wordsRef.current.length - 1;
+            // End of book - pause the pacer
             setPacerPaused(true);
           }
-        } else if (wordsRef.current.length > 0) {
+        } else {
+          // Normal word advancement
           indexRef.current = nextIdx;
+          if (now % 100 < 20) setCurrentWordIndex(nextIdx);
         }
-
-        // Use local variable for state updates to avoid stale closures in RAF
-        if (now % 100 < 20) setCurrentWordIndex(indexRef.current);
       }
     }
 
