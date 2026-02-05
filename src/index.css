@@ -1,0 +1,571 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Immersive Reading App Design System
+   Philosophy: Minimal surface, deep intelligence underneath
+   The interface should disappear while reading
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=New+York:wght@400;500;600&family=SF+Pro+Display:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,300;1,8..60,400&family=Inter:wght@300;400;500;600&display=swap');
+
+@layer base {
+  :root {
+    /* Apple Books inspired - Clean, bright surfaces */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 11%;
+
+    /* Card surfaces - Pure white with subtle depth */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 11%;
+
+    /* Popover/Overlay - Clean surfaces */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
+
+    /* Primary - Apple orange-red accent */
+    --primary: 12 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Light gray */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
+
+    /* Muted - Subtle grays */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Accent - Light surface */
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 11%;
+
+    /* Destructive - Clean red */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders - Very subtle */
+    --border: 0 0% 92%;
+    --input: 0 0% 90%;
+    --ring: 12 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* === Genre Color System === */
+    /* Thriller - Warm blood red */
+    --genre-thriller: 0 65% 50%;
+    --genre-thriller-glow: 0 70% 60%;
+
+    /* Classic - Aged sepia */
+    --genre-classic: 35 50% 55%;
+    --genre-classic-glow: 38 55% 65%;
+
+    /* Emotional - Soft lavender blue */
+    --genre-emotional: 230 45% 60%;
+    --genre-emotional-glow: 235 50% 70%;
+
+    /* Mystery - Deep purple */
+    --genre-mystery: 270 40% 50%;
+    --genre-mystery-glow: 275 45% 60%;
+
+    /* Romance - Soft rose */
+    --genre-romance: 340 50% 60%;
+    --genre-romance-glow: 345 55% 70%;
+
+    /* Sci-Fi - Cyan electric */
+    --genre-scifi: 185 60% 45%;
+    --genre-scifi-glow: 190 65% 55%;
+
+    /* === Reading Experience === */
+    --reading-bg: 40 35% 97%;
+    --reading-text: 30 12% 18%;
+    --reading-highlight: 45 90% 75%;
+    --reading-pacer: 45 100% 60%;
+
+    /* === Progress & Stats === */
+    --progress-ring: 150 45% 50%;
+    --progress-bg: 35 15% 90%;
+
+    /* === Emotional Meter === */
+    --emotion-calm: 200 50% 55%;
+    --emotion-tense: 15 70% 55%;
+    --emotion-joy: 45 85% 55%;
+    --emotion-sadness: 220 45% 55%;
+
+    /* === Animation Timings === */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
+    --duration-breath: 4s;
+
+    --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* === Typography === */
+    --font-reading: 'Source Serif 4', Georgia, serif;
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+    --line-height-reading: 1.75;
+    --letter-spacing-reading: 0.005em;
+
+    /* Sidebar defaults */
+    --sidebar-background: 40 25% 97%;
+    --sidebar-foreground: 30 10% 25%;
+    --sidebar-primary: 30 15% 20%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 35 20% 92%;
+    --sidebar-accent-foreground: 30 15% 20%;
+    --sidebar-border: 35 15% 88%;
+    --sidebar-ring: 30 20% 60%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 92%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 92%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 92%;
+
+    --primary: 12 100% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 0 0% 16%;
+    --accent-foreground: 0 0% 92%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 16%;
+    --input: 0 0% 18%;
+    --ring: 12 100% 55%;
+
+    --reading-bg: 0 0% 0%;
+    --reading-text: 0 0% 88%;
+    --reading-highlight: 45 70% 35%;
+    --reading-pacer: 12 100% 55%;
+
+    --progress-ring: 12 100% 55%;
+    --progress-bg: 0 0% 18%;
+
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 12 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 88%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 12 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-ui);
+  }
+
+  /* Reading-optimized text */
+  .reading-text {
+    font-family: var(--font-reading);
+    line-height: var(--line-height-reading);
+    letter-spacing: var(--letter-spacing-reading);
+  }
+}
+
+@layer components {
+
+  /* === Breathing Animation for Active Book === */
+  .breathe {
+    animation: breathe var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 hsl(var(--genre-classic-glow) / 0);
+    }
+
+    50% {
+      transform: scale(1.02);
+      box-shadow: 0 0 40px 10px hsl(var(--genre-classic-glow) / 0.15);
+    }
+  }
+
+  /* Genre-specific breathing */
+  .breathe-thriller {
+    animation: breathe-thriller var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe-thriller {
+
+    0%,
+    100% {
+      box-shadow: 0 8px 32px -8px hsl(var(--genre-thriller) / 0.2);
+    }
+
+    50% {
+      box-shadow: 0 12px 48px -4px hsl(var(--genre-thriller-glow) / 0.35);
+    }
+  }
+
+  .breathe-classic {
+    animation: breathe-classic var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe-classic {
+
+    0%,
+    100% {
+      box-shadow: 0 8px 32px -8px hsl(var(--genre-classic) / 0.2);
+    }
+
+    50% {
+      box-shadow: 0 12px 48px -4px hsl(var(--genre-classic-glow) / 0.35);
+    }
+  }
+
+  .breathe-emotional {
+    animation: breathe-emotional var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe-emotional {
+
+    0%,
+    100% {
+      box-shadow: 0 8px 32px -8px hsl(var(--genre-emotional) / 0.2);
+    }
+
+    50% {
+      box-shadow: 0 12px 48px -4px hsl(var(--genre-emotional-glow) / 0.35);
+    }
+  }
+
+  .breathe-mystery {
+    animation: breathe-mystery var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe-mystery {
+
+    0%,
+    100% {
+      box-shadow: 0 8px 32px -8px hsl(var(--genre-mystery) / 0.2);
+    }
+
+    50% {
+      box-shadow: 0 12px 48px -4px hsl(var(--genre-mystery-glow) / 0.35);
+    }
+  }
+
+  .breathe-romance {
+    animation: breathe-romance var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe-romance {
+
+    0%,
+    100% {
+      box-shadow: 0 8px 32px -8px hsl(var(--genre-romance) / 0.2);
+    }
+
+    50% {
+      box-shadow: 0 12px 48px -4px hsl(var(--genre-romance-glow) / 0.35);
+    }
+  }
+
+  .breathe-scifi {
+    animation: breathe-scifi var(--duration-breath) ease-in-out infinite;
+  }
+
+  @keyframes breathe-scifi {
+
+    0%,
+    100% {
+      box-shadow: 0 8px 32px -8px hsl(var(--genre-scifi) / 0.2);
+    }
+
+    50% {
+      box-shadow: 0 12px 48px -4px hsl(var(--genre-scifi-glow) / 0.35);
+    }
+  }
+
+  /* === Genre Glow Auras === */
+  .glow-thriller {
+    box-shadow: 0 0 30px -5px hsl(var(--genre-thriller-glow) / 0.25);
+  }
+
+  .glow-classic {
+    box-shadow: 0 0 30px -5px hsl(var(--genre-classic-glow) / 0.25);
+  }
+
+  .glow-emotional {
+    box-shadow: 0 0 30px -5px hsl(var(--genre-emotional-glow) / 0.25);
+  }
+
+  .glow-mystery {
+    box-shadow: 0 0 30px -5px hsl(var(--genre-mystery-glow) / 0.25);
+  }
+
+  .glow-romance {
+    box-shadow: 0 0 30px -5px hsl(var(--genre-romance-glow) / 0.25);
+  }
+
+  .glow-scifi {
+    box-shadow: 0 0 30px -5px hsl(var(--genre-scifi-glow) / 0.25);
+  }
+
+  /* === Fade Animations === */
+  .fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-out) forwards;
+  }
+
+  .fade-out {
+    animation: fadeOut var(--duration-normal) var(--ease-in) forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  /* === Visual Pacer === */
+  .pacer-word {
+    position: relative;
+  }
+
+  .pacer-word::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(var(--reading-pacer)) 50%,
+        transparent 100%);
+    border-radius: 2px;
+    animation: pacerGlow 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pacerGlow {
+
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scaleX(0.95);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  /* === Emotional Meter Bar === */
+  .emotion-bar {
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+        hsl(var(--emotion-calm)) 0%,
+        hsl(var(--emotion-joy)) 33%,
+        hsl(var(--emotion-tense)) 66%,
+        hsl(var(--emotion-sadness)) 100%);
+    background-size: 200% 100%;
+    animation: emotionFlow 8s ease-in-out infinite;
+  }
+
+  @keyframes emotionFlow {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* === Progress Ring === */
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring-circle {
+    transition: stroke-dashoffset var(--duration-slow) var(--ease-soft);
+  }
+
+  /* === Contextual Overlay === */
+  .overlay-appear {
+    animation: overlayAppear var(--duration-normal) var(--ease-out) forwards;
+  }
+
+  .overlay-disappear {
+    animation: overlayDisappear var(--duration-fast) var(--ease-in) forwards;
+  }
+
+  @keyframes overlayAppear {
+    from {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+
+    to {
+      opacity: 1;
+      backdrop-filter: blur(12px);
+    }
+  }
+
+  @keyframes overlayDisappear {
+    from {
+      opacity: 1;
+      backdrop-filter: blur(12px);
+    }
+
+    to {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+  }
+
+  /* === Soft Scale Hover === */
+  .hover-lift {
+    transition: transform var(--duration-normal) var(--ease-soft),
+      box-shadow var(--duration-normal) var(--ease-soft);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* === Reading Mode Scrolling === */
+  .reading-scroll {
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+  }
+
+  .reading-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .reading-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .reading-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 3px;
+  }
+
+  .reading-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  /* === Tension Meter === */
+  .tension-meter {
+    height: 4px;
+    background: hsl(var(--muted));
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .tension-fill {
+    height: 100%;
+    background: linear-gradient(90deg,
+        hsl(var(--emotion-calm)),
+        hsl(var(--emotion-tense)));
+    border-radius: 2px;
+    transition: width var(--duration-slow) var(--ease-soft);
+  }
+
+  /* === Genre Accent Borders === */
+  .genre-border-thriller {
+    border-color: hsl(var(--genre-thriller) / 0.3);
+  }
+
+  .genre-border-classic {
+    border-color: hsl(var(--genre-classic) / 0.3);
+  }
+
+  .genre-border-emotional {
+    border-color: hsl(var(--genre-emotional) / 0.3);
+  }
+
+  /* === Streak Ribbon === */
+  .streak-ribbon {
+    background: linear-gradient(90deg,
+        hsl(var(--progress-ring) / 0.1) 0%,
+        hsl(var(--progress-ring) / 0.3) 50%,
+        hsl(var(--progress-ring) / 0.1) 100%);
+  }
+
+  /* === Heat Map Cell === */
+  .heatmap-cell {
+    transition: all var(--duration-fast) var(--ease-soft);
+  }
+
+  .heatmap-cell:hover {
+    transform: scale(1.1);
+  }
+}
+
+@layer utilities {
+
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Reading-optimized container */
+  .reading-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Gentle text selection */
+  .reading-select::selection {
+    background: hsl(var(--reading-highlight) / 0.4);
+  }
+}
