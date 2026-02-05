@@ -46,15 +46,17 @@ export function useLocalLibrary() {
 
     if (storedLibrary) {
       try {
-        const parsed: StoredLibrary = JSON.parse(storedLibrary);
-        const booksWithDates = parsed.books
-          .filter(book => !['1', '2', '3', '4', '5', '6'].includes(book.id))
-          .map(book => ({
+        const parsed = JSON.parse(storedLibrary);
+        const booksArray = (parsed && Array.isArray(parsed.books)) ? parsed.books : [];
+        const booksWithDates = booksArray
+          .filter((book: any) => book && !['1', '2', '3', '4', '5', '6'].includes(book.id))
+          .map((book: any) => ({
             ...book,
             lastReadAt: book.lastReadAt ? new Date(book.lastReadAt) : undefined
           }));
         setBooks(booksWithDates);
-      } catch {
+      } catch (err) {
+        console.error("Error parsing stored library:", err);
         setBooks([]);
       }
     }
@@ -63,21 +65,28 @@ export function useLocalLibrary() {
       try {
         const parsed = JSON.parse(storedContent);
         const filteredContent: BookContent = {};
-        Object.entries(parsed).forEach(([id, content]) => {
-          if (!['1', '2', '3', '4', '5', '6'].includes(id)) {
-            filteredContent[id] = content as string;
-          }
-        });
+        if (parsed && typeof parsed === 'object') {
+          Object.entries(parsed).forEach(([id, content]) => {
+            if (!['1', '2', '3', '4', '5', '6'].includes(id)) {
+              filteredContent[id] = content as string;
+            }
+          });
+        }
         setBookContents(filteredContent);
-      } catch {
+      } catch (err) {
+        console.error("Error parsing stored content:", err);
         setBookContents({});
       }
     }
 
     if (storedStats) {
       try {
-        setStats(JSON.parse(storedStats));
-      } catch {
+        const parsed = JSON.parse(storedStats);
+        if (parsed && typeof parsed === 'object') {
+          setStats({ ...DEFAULT_STATS, ...parsed });
+        }
+      } catch (err) {
+        console.error("Error parsing stored stats:", err);
         setStats(DEFAULT_STATS);
       }
     }

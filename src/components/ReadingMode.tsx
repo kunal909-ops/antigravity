@@ -21,7 +21,6 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 // Robust worker configuration
 const PDFJS_VERSION = '4.4.168';
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`;
 
 interface ReadingModeProps {
   book: Book;
@@ -93,6 +92,10 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
   // Load PDF
   useEffect(() => {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`;
+  }, []);
+
+  useEffect(() => {
     let active = true;
     const loadDoc = async () => {
       if (!book.pdfUrl) {
@@ -156,8 +159,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d', {
-        alpha: false,
-        desynchronized: true
+        alpha: false
       });
       if (!ctx) return;
 
