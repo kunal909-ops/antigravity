@@ -147,6 +147,7 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
     try {
       if (renderTaskRef.current) renderTaskRef.current.cancel();
+      wordsRef.current = [];
 
       const page = await pdfDocument.getPage(currentPage);
       const viewportUnscaled = page.getViewport({ scale: 1 });
@@ -291,16 +292,16 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
 
         const nextIdx = indexRef.current + skip;
 
-        if (nextIdx >= wordsRef.current.length - 1) {
+        if (wordsRef.current.length > 0 && nextIdx >= wordsRef.current.length - 1) {
           if (pageRef.current.current < pageRef.current.total) {
             nextRef.current();
             indexRef.current = 0;
-            accumulatedRef.current = -500;
+            accumulatedRef.current = -800; // Slightly longer breath for page load
           } else {
             indexRef.current = wordsRef.current.length - 1;
             setPacerPaused(true);
           }
-        } else {
+        } else if (wordsRef.current.length > 0) {
           indexRef.current = nextIdx;
         }
 
@@ -333,6 +334,27 @@ export function ReadingMode({ book, onClose, onUpdateProgress, onAddReadingTime 
           drawRoundedRect(pCtx, x, y + height + 2, width, 4, 2);
           pCtx.fill();
           pCtx.shadowBlur = 0;
+
+          // --- AUTO SCROLLING ---
+          if (scrollRef.current && canvasRef.current) {
+            const dpr = (window.devicePixelRatio || 1) * (window.innerWidth < 768 || ('ontouchstart' in window) ? 1.2 : 1.5);
+            const wordTopOnCanvas = y / dpr;
+            const wordHeightOnCanvas = height / dpr;
+            const canvasTop = canvasRef.current.offsetTop;
+
+            const absoluteWordTop = canvasTop + wordTopOnCanvas;
+            const viewport = scrollRef.current;
+            const viewportTop = viewport.scrollTop;
+            const viewportHeight = viewport.clientHeight;
+
+            const margin = 120; // Keep space above/below word
+
+            if (absoluteWordTop < viewportTop + margin) {
+              viewport.scrollTo({ top: absoluteWordTop - margin, behavior: 'auto' });
+            } else if (absoluteWordTop + wordHeightOnCanvas > viewportTop + viewportHeight - margin) {
+              viewport.scrollTo({ top: absoluteWordTop + wordHeightOnCanvas - viewportHeight + margin, behavior: 'auto' });
+            }
+          }
         }
       }
     } else if (pCanvas) {
